@@ -1,0 +1,112 @@
+## RepliPong PRD
+
+### 1. Overview
+
+- **Product Name**: RepliPong
+- **Description**: A fast-paced Ping-Pong mobile game with multiple levels, dynamic difficulty scaling, realistic ball physics, and both single-player (vs. AI) and local multiplayer modes.
+- **Platform**: Android & iOS (cross-platform via Flutter/Flame on Replit)
+- **Target Release**: Q4 2025
+
+### 2. Vision & Objectives
+
+- **Vision**: Deliver an engaging, lightweight Ping-Pong experience that players can access instantly in their browser or via mobile install, with replayability driven by level progression and skill improvement analytics.
+- **Objectives**
+  1. **Progressive Gameplay**: At least 10 distinct levels, each with AI opponents of increasing strategy and speed.
+  2. **Smooth Physics**: Real-time collision detection, spin, and angle variation.
+  3. **User Engagement**: Leaderboards, achievements, and daily challenges.
+  4. **Rapid Deployment**: Use Replit for CI/CD, code collaboration, and instant hosting.
+  5. **Cross-Platform**: Single codebase in Flutter with Flame game engine.
+
+### 3. Target Audience
+
+- **Casual Gamers**: 18–35, enjoy quick, competitive games.
+- **Competitive Players**: Seek skill mastery through AI challenges and leaderboards.
+- **Students & Commuters**: Need lightweight, browser-playable games without large installs.
+
+### 4. Success Metrics
+
+- **DAU/MAU**: 5,000 daily active users in first three months.
+- **Level Completion Rate**: ≥ 70% for Levels 1–5, ≥ 50% for Levels 6–10.
+- **Session Length**: Average session ≥ 5 minutes.
+- **Retention**: 40% Day 1, 25% Day 7, 15% Day 30.
+- **Crash Rate**: < 1%
+
+### 5. User Stories
+
+1. **New Player**
+   - *As* a new player, *I want* a quick tutorial, *so that* I can learn controls instantly.
+2. **Progression**
+   - *As* a mid-level player, *I want* AI that adapts to my skill, *so that* every match feels challenging.
+3. **Competitive**
+   - *As* a competitive player, *I want* global leaderboards, *so that* I can compare scores with others.
+4. **Casual Replay**
+   - *As* a commuter, *I want* to play in my browser without installing an app, *so that* I can kill time easily.
+
+### 6. Features & Requirements
+
+| Category                  | Requirement                                                                                                                                      |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Core Gameplay**         | – Paddle control via touch/drag– Realistic ball trajectory, spin, and bounce physics– Scoring system: first to 11 points (win by 2)              |
+| **Levels & Difficulty**   | – 10 levels– AI skill tiers (Beginner → Pro)– Speed, spin, and reaction time scale per level                                                     |
+| **Game Modes**            | – **Single-Player** vs. AI– **Local Multiplayer** (split-screen)– **Tutorial** + **Practice** mode                                               |
+| **Progression & Rewards** | – XP per win, unlockable paddle skins– Achievements (e.g., 5-win streak)– Daily challenges (“Win 3 matches today”)                               |
+| **UI/UX**                 | – Clean, minimalist table-tennis aesthetic– Responsive layouts for portrait/landscape– Animated transitions for menus and level complete screens |
+| **Analytics**             | – Track level attempts, win/loss, reaction times– Integrate Firebase/Amplitude for event tracking                                                |
+| **Monetization**          | – **Optional Ads** between matches (rewarded video for double XP)– **In-App Purchases**: cosmetic skins, ad-free pass                            |
+| **Social & Leaderboards** | – Global & friends leaderboards (Firebase Realtime DB)– Share results to social media                                                            |
+| **Settings**              | – Sound on/off, vibration toggle, control sensitivity slider                                                                                     |
+| **Accessibility**         | – Adjustable font size, color-blind mode, haptic feedback options                                                                                |
+
+### 7. Technical Architecture
+
+```
+Flutter App (Dart)
+├─ Flame Game Engine
+│  ├─ Physics (Box2D integration)
+│  └─ Input Handling
+├─ UI Layer (Flutter widgets)
+├─ State Management (Riverpod / Provider)
+├─ Backend Services
+│  ├─ Firebase Auth & Realtime Database
+│  └─ Analytics (Firebase / Amplitude)
+└─ CI/CD on Replit
+   ├─ Git integration
+   ├─ Automated builds (Replit Secrets for API keys)
+   └─ Web hosting (PWA support)
+```
+
+### 8. UI/UX Guidelines
+
+- **Onboarding**: One-screen overlay tutorial with highlighted paddle and ball controls.
+- **In-Game HUD**: Score at top, level counter, pause button.
+- **Menu**: Vertical list: Play → Multiplayer → Challenges → Shop → Settings
+- **Visual Style**: Flat design, high-contrast paddles, smooth 60 fps animations.
+
+### 9. Non-Functional Requirements
+
+- **Performance**: 60 fps on mid-range devices, < 50 MB install size.
+- **Scalability**: Support 100K+ concurrent users.
+- **Reliability**: ≥ 99.5% uptime.
+- **Security**: Encrypt all network traffic (TLS), secure API keys with Replit Secrets.
+
+### 10. Timeline & Milestones
+
+| Milestone                    | Duration | Deliverables                                           |
+| ---------------------------- | -------- | ------------------------------------------------------ |
+| **MVP Planning & Setup**     | 1 week   | PRD final, project scaffold on Replit, CI/CD pipelines |
+| **Core Mechanics**           | 3 weeks  | Paddle & ball physics, basic single-player mode        |
+| **Levels & AI**              | 2 weeks  | 10 AI difficulty tiers, level unlock logic             |
+| **UI/UX & Menus**            | 2 weeks  | Menus, HUD, tutorial overlay                           |
+| **Analytics & Leaderboards** | 1 week   | Event tracking, global leaderboards                    |
+| **Polish & QA**              | 2 weeks  | Bug fixes, device testing, performance tuning          |
+| **Beta Release**             | 1 week   | Closed beta builds, feedback collection                |
+| **Launch Prep**              | 1 week   | App Store & Play Store compliance, marketing assets    |
+| **Public Launch**            | —        | Go-live                                                |
+
+### 11. Risks & Mitigations
+
+- **Physics Complexity**: Might overshoot performance budget → use simplified physics engine (Flame’s built-in).
+- **Cross-Platform Issues**: Device fragmentation → early testing on range of Android/iOS devices via Replit previews and real-device QA.
+- **Monetization Resistance**: Ads/hard paywalls → limit ads to rewarded videos, keep cosmetic purchases optional.
+
+---

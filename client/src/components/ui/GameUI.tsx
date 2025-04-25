@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { usePongGame } from '@/lib/stores/usePongGame';
 import { COLORS } from '@/lib/constants';
 import { Button } from './button';
@@ -6,45 +6,67 @@ import { useSettings } from '@/lib/stores/useSettings';
 import { useAudio } from '@/lib/stores/useAudio';
 import { Volume2, VolumeX, Pause, Play, RotateCcw, Home } from 'lucide-react';
 
-export function GameUI() {
-  const gameState = usePongGame();
-  const { soundEnabled, toggleSound } = useSettings();
-  const [fps, setFps] = useState(0);
-  const [frameCount, setFrameCount] = useState(0);
-  const [lastTime, setLastTime] = useState(performance.now());
+// FPS counter as a separate, memoized component
+const FpsCounter = memo(() => {
   const showFps = useSettings(state => state.showFps);
+  const [fps, setFps] = useState(0);
+  const frameCountRef = useRef(0);
+  const lastTimeRef = useRef(performance.now());
+  const frameIdRef = useRef<number | null>(null);
   
   // Calculate FPS
   useEffect(() => {
-    let frameId: number;
+    if (!showFps) return;
+    
     let counting = true;
     
     const countFrames = () => {
-      setFrameCount(prevCount => prevCount + 1);
+      frameCountRef.current += 1;
       if (counting) {
-        frameId = requestAnimationFrame(countFrames);
+        frameIdRef.current = requestAnimationFrame(countFrames);
       }
     };
     
-    countFrames();
-    
-    const intervalId = setInterval(() => {
+    const updateFps = () => {
       const now = performance.now();
-      const elapsed = now - lastTime;
+      const elapsed = now - lastTimeRef.current;
       
       if (elapsed > 0) {
-        setFps(Math.round((frameCount * 1000) / elapsed));
-        setFrameCount(0);
-        setLastTime(now);
+        setFps(Math.round((frameCountRef.current * 1000) / elapsed));
+        frameCountRef.current = 0;
+        lastTimeRef.current = now;
       }
-    }, 1000);
+    };
+    
+    // Start counting frames
+    frameIdRef.current = requestAnimationFrame(countFrames);
+    
+    // Update FPS once per second
+    const intervalId = setInterval(updateFps, 1000);
     
     return () => {
       counting = false;
-      cancelAnimationFrame(frameId);
+      if (frameIdRef.current) {
+        cancelAnimationFrame(frameIdRef.current);
+      }
       clearInterval(intervalId);
     };
-  }, [frameCount, lastTime]);
+  }, [showFps]);
+  
+  if (!showFps) return null;
+  
+  return (
+    <div className="absolute top-2 left-2 text-sm text-white bg-black bg-opacity-50 px-2 py-1 rounded">
+      FPS: {fps}
+    </div>
+  );
+});
+
+// Main GameUI component
+export function GameUI() {
+  const gameState = usePongGame();
+  const { soundEnabled, toggleSound } = useSettings();
+  const showFps = useSettings(state => state.showFps);
   
   // Function to render the score display
   const renderScoreDisplay = () => {
@@ -177,12 +199,8 @@ export function GameUI() {
   
   return (
     <div className="absolute inset-0 pointer-events-none">
-      {/* Show FPS counter if enabled */}
-      {showFps && (
-        <div className="absolute top-2 left-2 text-sm text-white bg-black bg-opacity-50 px-2 py-1 rounded">
-          FPS: {fps}
-        </div>
-      )}
+      {/* Use our new FpsCounter component */}
+      <FpsCounter />
       
       {/* Only show score during gameplay */}
       {(gameState.phase === 'game' || gameState.phase === 'pause') && renderScoreDisplay()}

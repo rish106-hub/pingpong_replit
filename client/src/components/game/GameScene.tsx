@@ -1,25 +1,31 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, memo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrthographicCamera } from '@react-three/drei';
-import { usePongGame } from '@/lib/stores/usePongGame';
 import { COLORS, COURT_HEIGHT, COURT_WIDTH } from '@/lib/constants';
 
 import { Court } from './Court';
 import { Ball } from './Ball';
 import { Paddle } from './Paddle';
 import { AIController } from './AIController';
-import { useGamePhysics } from '@/hooks/useGamePhysics';
 import { useGameControls } from '@/hooks/useGameControls';
 
-export function GameScene() {
-  const gameState = usePongGame();
+// Import the hook directly to avoid using require
+import { useGamePhysics } from '@/hooks/useGamePhysics';
+
+// Define a separate component for the game physics to avoid re-renders
+const GamePhysics = memo(() => {
+  useGamePhysics();
+  return null;
+});
+
+// Wrap the scene in memo to prevent unnecessary re-renders
+export const GameScene = memo(() => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
-  // Initialize game physics and controls
-  useGamePhysics();
+  // Initialize controls
   useGameControls();
   
-  // Set canvas dimensions when window resizes
+  // Set canvas dimensions only on mount and resize
   useEffect(() => {
     const handleResize = () => {
       if (canvasRef.current) {
@@ -34,7 +40,7 @@ export function GameScene() {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, []); // Empty dependency array to only run on mount
   
   return (
     <Canvas ref={canvasRef} style={{ background: COLORS.BACKGROUND }}>
@@ -63,6 +69,9 @@ export function GameScene() {
       
       {/* AI controller (no visual elements) */}
       <AIController />
+      
+      {/* Game physics (separate component) */}
+      <GamePhysics />
     </Canvas>
   );
-}
+});

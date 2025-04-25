@@ -21,11 +21,12 @@ export function AIController() {
     
     const updateAI = () => {
       const now = Date.now();
+      const currentGameState = usePongGame.getState();
       
       // Only update AI decision after the reaction time has passed
       if (now - lastUpdateTime.current >= aiSettings.reactionTime) {
-        const ball = gameState.ball;
-        const aiPaddle = gameState.aiPaddle;
+        const ball = currentGameState.ball;
+        const aiPaddle = currentGameState.aiPaddle;
         
         // Only try to intercept if the ball is moving toward the AI
         if (ball.velocity.x > 0) {
@@ -44,8 +45,8 @@ export function AIController() {
           targetY.current = predictedY + errorOffset;
         } else {
           // If ball is moving away, return to center with some variance
-          targetY.current = gameState.aiPaddle.position.y * 0.9 + 
-                            (gameState.ball.position.y * 0.1);
+          targetY.current = currentGameState.aiPaddle.position.y * 0.9 + 
+                            (currentGameState.ball.position.y * 0.1);
         }
         
         lastUpdateTime.current = now;
@@ -53,7 +54,8 @@ export function AIController() {
       
       // Move AI paddle toward the target position
       if (targetY.current !== null) {
-        const paddleY = gameState.aiPaddle.position.y;
+        const currentState = usePongGame.getState();
+        const paddleY = currentState.aiPaddle.position.y;
         const distance = targetY.current - paddleY;
         
         // Limit movement speed based on AI difficulty
@@ -61,12 +63,12 @@ export function AIController() {
         const speed = Math.min(Math.abs(distance), aiSettings.maxSpeed) * direction;
         
         if (Math.abs(distance) > 5) {
-          gameState.movePaddle('ai', paddleY + speed);
+          currentState.movePaddle('ai', paddleY + speed);
         }
       }
       
       // Continue the loop if still in gameplay
-      if (gameState.phase === 'game') {
+      if (usePongGame.getState().phase === 'game') {
         requestAnimationFrame(updateAI);
       }
     };
@@ -77,7 +79,7 @@ export function AIController() {
     return () => {
       cancelAnimationFrame(frameId);
     };
-  }, [gameState, gameState.phase, gameState.roundStartCountdown, aiSettings]);
+  }, [aiSettings]); // Only depend on aiSettings to avoid re-creating the effect
   
   return null; // This is a logic-only component
 }
